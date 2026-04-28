@@ -1,23 +1,32 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const otp = ref('')
 const errorMessage = ref('')
 const isVerifying = ref(false)
 const isVerified = ref(false)
 
-const onComplete = async (code: string) => {
+const isComplete = ref(false)
+const canSubmit = computed(() => isComplete.value && !isVerifying.value && !isVerified.value)
+
+const onComplete = () => {
+  isComplete.value = true
+}
+
+const verify = async () => {
+  if (!canSubmit.value) {
+    return
+  }
   isVerifying.value = true
   errorMessage.value = ''
-  isVerified.value = false
 
   try {
-    const response = await useApi().example.verifyOtp(code)
+    const response = await useApi().example.verifyOtp(otp.value)
     if (response.success && response.data.verified) {
       isVerified.value = true
       return
     }
-    errorMessage.value = '驗證碼錯誤，請重新輸入'
+    errorMessage.value = 'Invalid code'
   } catch (error) {
     errorMessage.value = '驗證失敗，請稍後再試'
     console.log(error)
@@ -26,47 +35,34 @@ const onComplete = async (code: string) => {
   }
 }
 
-// 使用者重新輸入時清掉錯誤訊息與成功狀態
+// 使用者重新編輯時清掉錯誤訊息與成功狀態
 watch(otp, (val: string) => {
   if (val.length < 6) {
-    errorMessage.value = ''
+    isComplete.value = false
     isVerified.value = false
+    errorMessage.value = ''
   }
 })
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center p-12">
-    <div class="w-full max-w-md">
-      <h1 class="mb-2 text-center text-2xl font-bold">
-        輸入驗證碼
-      </h1>
-      <p class="mb-6 text-center text-sm text-gray-500">
-        請輸入 6 位數驗證碼（測試用：123456）
-      </p>
-      <div class="flex justify-center">
-        <BaseInputOtp
-          v-model="otp"
-          :length="6"
-          :error-message="errorMessage"
-          :disabled="isVerifying || isVerified"
-          @complete="onComplete"
-        />
-      </div>
-      <div class="mt-4 text-center text-sm">
-        <p
-          v-if="isVerifying"
-          class="text-gray-500"
-        >
-          驗證中...
-        </p>
-        <p
-          v-else-if="isVerified"
-          class="text-green-600"
-        >
-          驗證成功
-        </p>
-      </div>
+  <div class="flex min-h-screen items-center justify-center bg-gray-100 p-12">
+    <div class="flex flex-col items-center">
+      <BaseInputOtp
+        v-model="otp"
+        :length="6"
+        :error-message="errorMessage"
+        :disabled="isVerifying || isVerified"
+        @complete="onComplete"
+      />
+      <button
+        type="button"
+        class="mt-4 rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-black shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+        :disabled="!canSubmit"
+        @click="verify"
+      >
+        {{ isVerifying ? '驗證中...' : isVerified ? '驗證成功' : 'Submit' }}
+      </button>
     </div>
   </div>
 </template>
