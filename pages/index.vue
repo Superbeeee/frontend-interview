@@ -38,7 +38,9 @@ watch(otp, (val: string) => {
 <template>
   <div class="flex min-h-screen items-center justify-center p-12">
     <div class="w-full max-w-md">
-      <h1 class="mb-2 text-center text-2xl font-bold">輸入驗證碼</h1>
+      <h1 class="mb-2 text-center text-2xl font-bold">
+        輸入驗證碼
+      </h1>
       <p class="mb-6 text-center text-sm text-gray-500">
         請輸入 6 位數驗證碼（測試用：123456）
       </p>

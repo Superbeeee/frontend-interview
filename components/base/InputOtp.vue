@@ -125,7 +125,9 @@ const onPaste = (event: ClipboardEvent, index: number) => {
   event.preventDefault()
   const text = event.clipboardData?.getData('text') ?? ''
   const clean = text.replace(/\D/g, '')
-  if (!clean) return
+  if (!clean) {
+    return
+  }
 
   // 貼上完整碼時無視當前格，從第一格起覆蓋
   const startIndex = clean.length >= otpLength.value ? 0 : index
