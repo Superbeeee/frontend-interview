@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module", 
-  2tgtg
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
