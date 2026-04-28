@@ -4,15 +4,20 @@ import type { ComponentPublicInstance } from 'vue'
 
 interface Props {
   length?: number,
+  error?: boolean,
   errorMessage?: string,
   disabled?: boolean,
 }
 
 const props = withDefaults(defineProps<Props>(), {
   length: 6,
+  error: false,
   errorMessage: '',
   disabled: false
 })
+
+// error 為 true 或 errorMessage 有值時顯示錯誤樣式
+const hasError = computed(() => props.error || !!props.errorMessage)
 
 const emit = defineEmits<{
   complete: [value: string]
@@ -154,7 +159,7 @@ const setInputRef = (el: Element | ComponentPublicInstance | null, index: number
 </script>
 
 <template>
-  <div>
+  <div class="inline-flex flex-col items-center">
     <div class="flex items-center gap-2">
       <input
         v-for="(digit, index) in digits"
@@ -166,9 +171,9 @@ const setInputRef = (el: Element | ComponentPublicInstance | null, index: number
         autocomplete="one-time-code"
         maxlength="1"
         :disabled="props.disabled"
-        class="size-12 rounded-md border-2 bg-white text-center text-lg font-medium text-black outline-0 transition-colors"
+        class="size-12 rounded-md border bg-white text-center text-xl font-bold text-black shadow-sm outline-0 transition-colors"
         :class="[
-          props.errorMessage ? 'border-red-500' : 'border-black',
+          hasError ? 'border-red-500' : 'border-gray-300',
           props.disabled && 'cursor-not-allowed bg-gray-100 opacity-60'
         ]"
         @input="onInput($event, index)"
@@ -179,7 +184,7 @@ const setInputRef = (el: Element | ComponentPublicInstance | null, index: number
     </div>
     <p
       v-if="props.errorMessage"
-      class="mt-2 text-sm text-red-500"
+      class="mt-2 text-center text-sm text-red-500"
     >
       {{ props.errorMessage }}
     </p>
