@@ -19,10 +19,6 @@ const props = withDefaults(defineProps<Props>(), {
 // error 為 true 或 errorMessage 有值時顯示錯誤樣式
 const hasError = computed(() => props.error || !!props.errorMessage)
 
-const emit = defineEmits<{
-  complete: [value: string]
-}>()
-
 const model = defineModel<string>({ default: '' })
 
 // 限制長度範圍 4-8，預設 6
@@ -58,11 +54,7 @@ const focusInput = (index: number) => {
 }
 
 const syncToModel = () => {
-  const value = digits.value.join('')
-  model.value = value
-  if (value.length === otpLength.value && digits.value.every((d: string) => /^\d$/.test(d))) {
-    emit('complete', value)
-  }
+  model.value = digits.value.join('')
 }
 
 const onInput = (event: Event, index: number) => {

@@ -6,6 +6,8 @@ const errorMessage = ref('')
 const isVerifying = ref(false)
 const isVerified = ref(false)
 
+const OTP_LENGTH = 6
+
 const verify = async (code: string) => {
   isVerifying.value = true
   errorMessage.value = ''
@@ -25,26 +27,25 @@ const verify = async (code: string) => {
   }
 }
 
-// 輸入完成即時驗證
-const onComplete = (code: string) => {
-  verify(code)
-}
-
 // 按下 Submit 時：未填滿提示錯誤，已填滿手動觸發驗證
 const onSubmit = () => {
-  if (otp.value.length < 6) {
+  if (otp.value.length < OTP_LENGTH) {
     errorMessage.value = 'Please enter the complete code'
     return
   }
   verify(otp.value)
 }
 
-// 使用者重新編輯時清掉錯誤訊息與成功狀態
+// 透過 v-model 監聽 otp 變化：填滿即時驗證，未填滿時清掉錯誤與成功狀態
 watch(otp, (val: string) => {
-  if (val.length < 6) {
-    isVerified.value = false
-  }
   errorMessage.value = ''
+  if (val.length < OTP_LENGTH) {
+    isVerified.value = false
+    return
+  }
+  if (!isVerifying.value && !isVerified.value) {
+    verify(val)
+  }
 })
 </script>
 
@@ -53,10 +54,9 @@ watch(otp, (val: string) => {
     <div class="flex flex-col items-center">
       <BaseInputOtp
         v-model="otp"
-        :length="6"
+        :length="OTP_LENGTH"
         :error-message="errorMessage"
         :disabled="isVerifying || isVerified"
-        @complete="onComplete"
       />
       <button
         type="button"
