@@ -4,6 +4,7 @@ import type { ComponentPublicInstance } from 'vue'
 
 interface Props {
   length?: number,
+  columns?: number,
   error?: boolean,
   errorMessage?: string,
   disabled?: boolean,
@@ -11,6 +12,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   length: 6,
+  columns: 0,
   error: false,
   errorMessage: '',
   disabled: false
@@ -23,6 +25,12 @@ const model = defineModel<string>({ default: '' })
 
 // 限制長度範圍 4-8，預設 6
 const otpLength = computed(() => Math.min(8, Math.max(4, props.length)))
+
+// 每列幾格，0 或未傳 → 同 length（單列）；上下限介於 1 ~ length
+const columnCount = computed(() => {
+  const target = props.columns > 0 ? props.columns : otpLength.value
+  return Math.min(otpLength.value, Math.max(1, target))
+})
 
 const digits = ref<string[]>(Array.from({ length: otpLength.value }, (): string => ''))
 const inputRefs = ref<HTMLInputElement[]>([])
@@ -152,7 +160,10 @@ const setInputRef = (el: Element | ComponentPublicInstance | null, index: number
 
 <template>
   <div class="inline-flex flex-col items-center">
-    <div class="flex items-center gap-2">
+    <div
+      class="grid items-center gap-2"
+      :style="{ gridTemplateColumns: `repeat(${columnCount}, minmax(0, max-content))` }"
+    >
       <input
         v-for="(digit, index) in digits"
         :key="index"

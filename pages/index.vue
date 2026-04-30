@@ -7,6 +7,7 @@ const isVerifying = ref(false)
 const isVerified = ref(false)
 
 const OTP_LENGTH = 6
+const columns = ref<number>(OTP_LENGTH)
 
 const verify = async (code: string) => {
   isVerifying.value = true
@@ -52,9 +53,20 @@ watch(otp, (val: string) => {
 <template>
   <div class="flex min-h-screen items-center justify-center bg-gray-100 p-12">
     <div class="flex flex-col items-center">
+      <label class="mb-3 flex items-center gap-2 text-sm text-gray-700">
+        Columns per row
+        <input
+          v-model.number="columns"
+          type="number"
+          min="1"
+          :max="OTP_LENGTH"
+          class="w-16 rounded-md border border-gray-300 bg-white px-2 py-1 text-center outline-0 focus:border-black"
+        >
+      </label>
       <BaseInputOtp
         v-model="otp"
         :length="OTP_LENGTH"
+        :columns="columns"
         :error-message="errorMessage"
         :disabled="isVerifying || isVerified"
       />
